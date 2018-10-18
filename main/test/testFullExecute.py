@@ -6,6 +6,42 @@ from pylab import mpl
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 
 
+class InputFormatter(Formatter):
+    """
+    默认输入数据格式化formatter
+    """
+
+    def format(self, data):
+        return data
+
+
+class ResultFormatter(Formatter):
+    """
+    默认输出结果格式化formatter
+    """
+
+    def format(self, data):
+        return data
+
+
+class PreDataHandler(Handler):
+    """
+    默认输入数据预处理handler
+    """
+
+    def handle(self, data):
+        return data
+
+
+class ResultReviser(Reviser):
+    """
+    默认输出结果修正reviser
+    """
+
+    def revise(self, data):
+        return data
+
+
 class ExecuteListener(OnExecuteListener):
     def on_success(self, result):
         pre = result[0] * range(300) + result[1]
@@ -36,8 +72,13 @@ if __name__ == '__main__':
     execute.set_data((history, 18))
     # 设置监听器
     execute.set_execute_listener(ExecuteListener())
+    # 设置输入输出格式化formatter
+    execute.set_formatter(InputFormatter(), ResultFormatter())
+    # 设置数据预处理handler
+    execute.set_pre_data_handler(PreDataHandler())
+    # 设置结果修正reviser
+    execute.set_reviser(ResultReviser())
     # 设置执行需要执行的算法
     execute.set_algorithm(PvCellUrlPrediction())
     # 执行
     execute.execute()
-
