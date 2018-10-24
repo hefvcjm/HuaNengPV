@@ -7,7 +7,7 @@ import json
 # 故障名称
 fault_name = '汇流箱母线电压偏低'
 # 需要的数据，类型：返回时的字段名称
-need_data = {'电压': 'voltage'}
+need_data = {'devType': '汇流箱', 'params': ['voltage']}
 
 
 class ExecuteListener(OnExecuteListener):
@@ -35,7 +35,7 @@ class Application:
     def __init__(self, identify, socket):
         self.__socket = socket
         self.__identify = identify
-        socket.send_json({'token': self.__identify, 'format': need_data})
+        socket.send_json({'type': 'request', 'token': identify, 'device': need_data})
 
     def main(self, data):
         self.__data = data

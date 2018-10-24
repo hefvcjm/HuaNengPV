@@ -2,8 +2,6 @@
 import zmq
 import json
 import threading
-import sched
-import time
 from main.src.communication.FunctionMapping import *
 
 # client id --> 处理类实例
@@ -11,7 +9,7 @@ ID_CLASS_MAPPING = {}
 # 开启服务器线程数量
 server_thread_count = 5
 # 定时删除ID_CLASS_MAPPING中的实例
-timeout_delete = 5
+timeout_delete = 30
 
 
 class Client(threading.Thread):
@@ -69,27 +67,29 @@ class Client(threading.Thread):
                     self.__socket.send_json({'type': 'error', 'token': token, 'data': {'msg': '未设置token'}})
                     continue
                 if json_msg['type'] == 'trigger':
-                    path = FUNCTION_MAPPING[json_msg['detail']['type']]
-                    print(path)
-                    if path is not None:
-                        obj = __import__(path, fromlist=path.split('.')[:-1])
-                        clazz = getattr(obj, 'Application')
-                        instance = clazz(token, self.__socket)
-                        ID_CLASS_MAPPING[token] = instance
-                        self.timeout_to_delete(token)
-                    else:
-                        self.__socket.send_json(
-                            {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
-                        continue
+                    if json_msg['detail']['type'] in FUNCTION_MAPPING.keys():
+                        path = FUNCTION_MAPPING[json_msg['detail']['type']]
+                        print(path)
+                        if path is not None:
+                            obj = __import__(path, fromlist=path.split('.')[:-1])
+                            clazz = getattr(obj, 'Application')
+                            instance = clazz(token, self.__socket)
+                            ID_CLASS_MAPPING[token] = instance
+                            self.timeout_to_delete(token)
+                        else:
+                            self.__socket.send_json(
+                                {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
+                            continue
                 elif json_msg['type'] == 'response':
                     data = json_msg['device']
                     if not isinstance(data, list):
                         self.__socket.send_json({'type': 'error', 'token': token, 'data': {'msg': '数据格式错误'}})
                         continue
-                    instance = ID_CLASS_MAPPING[token]
-                    if instance is not None:
-                        method = getattr(instance, 'main')
-                        method(data)
+                    if token in ID_CLASS_MAPPING.keys():
+                        instance = ID_CLASS_MAPPING[token]
+                        if instance is not None:
+                            method = getattr(instance, 'main')
+                            method(data)
                     else:
                         self.__socket.send_json({'type': 'error', 'token': token, 'data': {'msg': '未初始化算法'}})
                 else:
@@ -113,6 +113,7 @@ class Client(threading.Thread):
             except:
                 pass
 
+        print(token)
         threading.Timer(timeout_delete, do, [token]).start()
 
 

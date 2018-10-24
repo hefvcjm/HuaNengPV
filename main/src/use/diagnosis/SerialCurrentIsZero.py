@@ -44,7 +44,7 @@ class Application:
     def __init__(self, identify, socket):
         self.__socket = socket
         self.__identify = identify
-        socket.send_json({'token': self.__identify, 'format': need_data})
+        socket.send_json({'type': 'request', 'token': identify, 'device': need_data})
 
     def main(self, data):
         self.__data = data
