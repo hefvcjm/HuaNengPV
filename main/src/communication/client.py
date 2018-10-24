@@ -2,12 +2,16 @@
 import zmq
 import json
 import threading
+import sched
+import time
 from main.src.communication.FunctionMapping import *
 
 # client id --> 处理类实例
 ID_CLASS_MAPPING = {}
 # 开启服务器线程数量
 server_thread_count = 5
+# 定时删除ID_CLASS_MAPPING中的实例
+timeout_delete = 5
 
 
 class Client(threading.Thread):
@@ -72,6 +76,7 @@ class Client(threading.Thread):
                         clazz = getattr(obj, 'Application')
                         instance = clazz(token, self.__socket)
                         ID_CLASS_MAPPING[token] = instance
+                        self.timeout_to_delete(token)
                     else:
                         self.__socket.send_json(
                             {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
@@ -97,6 +102,18 @@ class Client(threading.Thread):
             except:
                 pass
         self.__socket.close()
+
+    # 定时删除请求算法的实例
+    def timeout_to_delete(self, token):
+        def do(token):
+
+            try:
+                del ID_CLASS_MAPPING[token]
+                print('删除token为<' + token + '>对应的算法实例')
+            except:
+                pass
+
+        threading.Timer(timeout_delete, do, [token]).start()
 
 
 def main():

@@ -1,0 +1,78 @@
+触发算法:
+-->
+{
+	'type':'trigger',
+	'target':'require algorithm',
+	'token':<token>,
+	'function':<功能类型>,
+	'detail':{
+		'type':<具体故障>
+	}
+}
+
+返回数据要求:
+<--
+{
+	'type':'request',
+	'token':<token>,
+	'device':[
+		{
+			'devType':<设备1>,
+			'params':[<类型1>,<类型2>]
+		},
+		{
+			'devType':<设备2>,
+			'params':[<类型1>,<类型2>]
+		}
+	]
+}
+
+返回数据
+-->
+{
+	'type':'response',
+	'target':'set data',
+	'token':<token>,
+	'device':[
+		{
+			'devType':<设备1>,
+			'data':[
+				{
+					'name':'类型1',
+					'value':[<value1>,<value2>,<value3>]
+				},
+				{
+					'name':'类型2',
+					'value':[<value1>,<value2>,<value3>]
+				}
+			]
+		},
+		{
+			'devType':<设备2>,
+			'data':[
+				{
+					'name':'类型1',
+					'value':[<value1>,<value2>,<value3>]
+				},
+				{
+					'name':'类型2',
+					'value':[<value1>,<value2>,<value3>]
+				}
+			]
+		}
+	]
+}
+
+返回结果：
+<--
+{
+	'type':'result',
+	'token':<token>,
+	'count':'0',
+	'data':[
+		{
+			'field1':'xxxx',
+			'field2':'oooo'
+		}
+	]
+}
