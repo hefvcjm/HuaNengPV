@@ -1,39 +1,5 @@
 # coding = utf-8
 # “逆变器温度过高”故障诊断调用模块
-"""
-触发算法
-    -->
-    {
-        'target'：'require algorithm',
-        'function':'故障诊断'，
-        'detail':{
-            'type':'逆变器温度过高'
-        }
-    }
-
-    返回示例
-    其中，key为数据说明，value为调用出返回时该数据的key
-    <--
-    {
-        '温度': 'temp'
-    }
-
-返回请求数据示例
-    -->
-    {
-        'target'：'set data',
-        'function':'故障诊断',
-        'data':{
-            'temp':56.5
-        }
-    }
-
-算法结果返回数据示例
-    <--
-    {
-        'result': False
-    }
-"""
 from main.src.framework.Execute import *
 from main.src.application.diagnosis.General import *
 import json

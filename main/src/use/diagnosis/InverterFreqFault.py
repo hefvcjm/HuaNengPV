@@ -1,39 +1,5 @@
 # coding = utf-8
 # “逆变器频率故障”故障诊断调用模块
-"""
-触发算法
-    -->
-    {
-        'target'：'require algorithm',
-        'function':'故障诊断'，
-        'detail':{
-            'type':'逆变器频率故障'
-        }
-    }
-
-    返回示例
-    其中，key为数据说明，value为调用出返回时该数据的key
-    <--
-    {
-        '频率': 'freq'
-    }
-
-返回请求数据示例
-    -->
-    {
-        'target'：'set data',
-        'function':'故障诊断',
-        'data':{
-            'freq':50.32
-        }
-    }
-
-算法结果返回数据示例
-    <--
-    {
-        'result': False
-    }
-"""
 from main.src.framework.Execute import *
 from main.src.application.diagnosis.General import *
 import json

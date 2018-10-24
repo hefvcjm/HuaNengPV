@@ -1,47 +1,5 @@
 # -*- coding: UTF-8 -*-
 # “支路电流偏低”故障诊断调用模块
-"""
-触发算法
-    -->
-    {
-        'target': 'require algorithm',
-        'function': '故障诊断'，
-        'token': 'lkasfgasghh14234',
-        'detail': {
-            'type':'支路电流偏低'
-        }
-    }
-
-    返回示例
-    其中，key为数据说明，value为调用出返回时该数据的key
-    <--
-    {
-        'token': 'lkasfgasghh14234',
-        'format': {
-            '电流': 'current'
-        }
-    }
-
-返回请求数据示例
-其中count为上一次结果附带需要保存的变量
-    -->
-    {
-        'target'：'set data',
-        'function':'故障诊断',
-        'token': 'lkasfgasghh14234',
-        'data':{
-            'current':1.5648
-            }
-    }
-
-算法结果返回数据示例
-    <--
-    {
-        'token': 'lkasfgasghh14234',
-        'result': False
-    }
-
-"""
 from main.src.framework.Execute import *
 from main.src.application.diagnosis.General import *
 import json
