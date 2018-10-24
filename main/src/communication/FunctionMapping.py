@@ -8,3 +8,5 @@
 DIAGNOSIS_FUNCTION_MAPPING = {}
 # 预测类型 --> 处理对应预测的模块
 PREDICTION_FUNCTION_MAPPING = {}
+# 功能类型 --> 处理对应预测的模块
+FUNCTION_MAPPING = {}
