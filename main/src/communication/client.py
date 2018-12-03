@@ -4,8 +4,6 @@ import json
 import threading
 from main.src.communication.FunctionMapping import *
 
-# client id --> 处理类实例
-ID_CLASS_MAPPING = {}
 # 开启服务器线程数量
 server_thread_count = 5
 # 定时删除ID_CLASS_MAPPING中的实例
@@ -69,20 +67,20 @@ class Client(threading.Thread):
                 if json_msg['type'] == 'trigger':
                     if json_msg['detail']['type'] in FUNCTION_MAPPING.keys():
                         path = FUNCTION_MAPPING[json_msg['detail']['type']]
-                        print(path)
                         if path is not None:
                             obj = __import__(path, fromlist=path.split('.')[:-1])
                             clazz = getattr(obj, 'Application')
                             instance = clazz(token, self.__socket)
                             ID_CLASS_MAPPING[token] = instance
                             self.timeout_to_delete(token)
+                            print("调用：", path)
                         else:
                             self.__socket.send_json(
                                 {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
                             continue
                 elif json_msg['type'] == 'response':
                     data = json_msg['device']
-                    if not isinstance(data, list):
+                    if not isinstance(data, dict):
                         self.__socket.send_json({'type': 'error', 'token': token, 'data': {'msg': '数据格式错误'}})
                         continue
                     if token in ID_CLASS_MAPPING.keys():
@@ -109,7 +107,7 @@ class Client(threading.Thread):
 
             try:
                 del ID_CLASS_MAPPING[token]
-                print('删除token为<' + token + '>对应的算法实例')
+                print('算法等待数据或者执行超时，删除token为<' + token + '>对应的算法实例')
             except:
                 pass
 

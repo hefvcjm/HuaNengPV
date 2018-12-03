@@ -7,7 +7,7 @@ import json
 # 故障名称
 fault_name = '支路电流偏低'
 # 需要的数据，类型：返回时的字段名称
-need_data = {'电流': 'current'}
+need_data = [{"devType": "支路", "params": ["current", "count"]}]
 
 
 class Application:

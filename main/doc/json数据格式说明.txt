@@ -62,17 +62,31 @@
 		}
 	]
 }
+######################2#######################
+返回数据：
+{
+	"type":"response",
+	"target":"set data",
+	"token":<token>,
+	"device":{
+	    <设备1>:{
+	        <类型1>:[<value1>,<value2>,<value3>],
+	        <类型2>:[<value1>,<value2>,<value3>]
+	    },
+	    <设备2>:{
+	        <类型1>:[<value1>,<value2>,<value3>,<value3>],
+	        <类型2>:[<value1>,<value2>,<value3>,<value3>]
+	    }
+	}
+}
 
 返回结果：
 <--
 {
 	'type':'result',
 	'token':<token>,
-	'count':'0',
-	'data':[
-		{
-			'field1':'xxxx',
-			'field2':'oooo'
-		}
-	]
+	'data':{
+        <field1>:<xxxx>,
+        <field2>:<oooo>
+    }
 }

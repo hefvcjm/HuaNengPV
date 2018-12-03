@@ -10,3 +10,5 @@ DIAGNOSIS_FUNCTION_MAPPING = {}
 PREDICTION_FUNCTION_MAPPING = {}
 # 功能类型 --> 处理对应预测的模块
 FUNCTION_MAPPING = {}
+# client id --> 处理类实例
+ID_CLASS_MAPPING = {}

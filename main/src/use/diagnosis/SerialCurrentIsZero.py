@@ -7,7 +7,7 @@ import json
 # 故障名称
 fault_name = '某一支路电流为零'
 # 需要的数据，类型：返回时的字段名称
-need_data = {'电流': 'current', '累计次数': 'count'}
+need_data = [{"devType": "支路", "params": ["current", "count"]}]
 
 
 class ResultFormatter(Formatter):
@@ -34,11 +34,11 @@ class Application:
         print(fault_name + " Received request: %s" % data)
         try:
             execute = Execute()
-            execute.set_data(float(data['current']))
+            execute.set_data(float(data['支路']['current'][0]))
             execute.set_execute_listener(CommonListener(self.__identify, self.__socket))
             execute.set_formatter(None, ResultFormatter())
             algorithm = ValueIsZero()
-            algorithm.set_add_up(int(data['count']))
+            algorithm.set_add_up(int(data['支路']['count'][0]))
             execute.set_algorithm(algorithm)
             execute.execute()
         except json.JSONDecodeError:
