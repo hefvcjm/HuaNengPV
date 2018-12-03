@@ -1,6 +1,6 @@
 # coding = utf-8
 # “预测组串光电转化率”故障诊断调用模块
-from main.src.framework.Execute import *
+from main.src.use.listeners.CommonListener import *
 import json
 from main.src.application.predication.PredictionURL import *
 
@@ -8,23 +8,6 @@ from main.src.application.predication.PredictionURL import *
 func_name = '预测组串光电转化率'
 # 需要的数据，类型：返回时的字段名称
 need_data = {'光电转化率': 'conversion'}
-
-
-class ExecuteListener(OnExecuteListener):
-    __socket = None
-    __identify = None
-
-    def __init__(self, identify, socket):
-        self.__identify = identify
-        self.__socket = socket
-
-    def on_success(self, result):
-        print(result)
-        self.__socket.send_json({'token': self.__identify, 'data': {'result': result}})
-
-    def on_failure(self, error):
-        print(error)
-        self.__socket.send_json({'token': self.__identify, 'data': {'error': error}})
 
 
 class Application:
@@ -45,7 +28,7 @@ class Application:
             # 设置数据
             execute.set_data((data['conversion'], 18))
             # 设置监听器
-            execute.set_execute_listener(ExecuteListener(self.__identify, self.__socket))
+            execute.set_execute_listener(CommonListener(self.__identify, self.__socket))
             # 设置执行需要执行的算法
             execute.set_algorithm(PvCellUrlPrediction())
             # 执行

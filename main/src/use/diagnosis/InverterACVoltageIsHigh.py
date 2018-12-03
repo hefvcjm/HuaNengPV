@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # “逆变器交流过压”故障诊断调用模块
-from main.src.framework.Execute import *
+from main.src.use.listeners.CommonListener import *
 from main.src.application.diagnosis.General import *
 import json
 
@@ -8,23 +8,6 @@ import json
 fault_name = '逆变器交流过压'
 # 需要的数据，类型：返回时的字段名称
 need_data = {'电压': 'voltage'}
-
-
-class ExecuteListener(OnExecuteListener):
-    __socket = None
-    __identify = None
-
-    def __init__(self, identify, socket):
-        self.__identify = identify
-        self.__socket = socket
-
-    def on_success(self, result):
-        print(result)
-        self.__socket.send_json({'token': self.__identify, 'data': {'result': result}})
-
-    def on_failure(self, error):
-        print(error)
-        self.__socket.send_json({'token': self.__identify, 'data': {'error': error}})
 
 
 class Application:
@@ -43,7 +26,7 @@ class Application:
         try:
             execute = Execute()
             execute.set_data(float(data['voltage']))
-            execute.set_execute_listener(ExecuteListener(self.__identify, self.__socket))
+            execute.set_execute_listener(CommonListener(self.__identify, self.__socket))
             algorithm = ValueIsHigh()
             algorithm.set_threshold(100)
             execute.set_algorithm(algorithm)
