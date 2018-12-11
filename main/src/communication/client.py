@@ -117,14 +117,3 @@ class Client(threading.Thread):
 
         print(token)
         threading.Timer(timeout_delete, do, [token]).start()
-
-
-def main():
-    """main function"""
-    client = Client('tcp://localhost:3000')
-    client.start()
-    client.join()
-
-
-if __name__ == "__main__":
-    main()
