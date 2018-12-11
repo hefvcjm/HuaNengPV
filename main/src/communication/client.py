@@ -78,6 +78,10 @@ class Client(threading.Thread):
                             self.__socket.send_json(
                                 {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
                             continue
+                    else:
+                        self.__socket.send_json(
+                            {'type': 'error', 'token': token, 'data': {'msg': '不存在该算法功能：' + json_msg['function']}})
+                        continue
                 elif json_msg['type'] == 'response':
                     data = json_msg['device']
                     if not isinstance(data, dict):
