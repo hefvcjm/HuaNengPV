@@ -17,6 +17,9 @@ class CalculateThreshold:
         4:异常监测算法(暂未实现)
         """
         self.which = str(which)
+        self.__predict_func = None
+        self.__low_threshold = None
+        self.__high_threshold = None
 
     def train(self, **data):
         """
@@ -33,8 +36,10 @@ class CalculateThreshold:
             if isinstance(data_list[0], float):
                 raise Exception("列表元素数据类型非法")
             mean = sum(data_list) / len(data_list)
-            stdvar = (sum(map(lambda x: (x - mean) ** 2, data_list)) / len(data_list)) ** 0.5
-            return mean - rate * stdvar
+            std_var = (sum(map(lambda x: (x - mean) ** 2, data_list)) / len(data_list)) ** 0.5
+            self.__low_threshold = mean - rate * std_var
+            self.__predict_func = lambda x: x < self.__low_threshold
+            return mean - rate * std_var
 
         def method_2(data_list, rate):
             if not isinstance(data_list, list) or not isinstance(rate, float):
@@ -43,11 +48,15 @@ class CalculateThreshold:
                 raise Exception("数据过少")
             if isinstance(data_list[0], float):
                 raise Exception("列表元素数据类型非法")
+            self.__low_threshold = (sum(data_list) / len(data_list)) * rate
+            self.__predict_func = lambda x: x < self.__low_threshold
             return (sum(data_list) / len(data_list)) * rate
 
         def method_3(theoretical_value, rate):
             if not isinstance(theoretical_value, float) or not isinstance(rate, float):
                 raise Exception("非法参数数据类型")
+            self.__low_threshold = theoretical_value * rate
+            self.__predict_func = lambda x: x < self.__low_threshold
             return theoretical_value * rate
 
         # def method_4(data_list):
@@ -62,3 +71,21 @@ class CalculateThreshold:
             raise Exception("无相应类型的算法", self.which)
         if callable(method):
             return method(**data)
+
+    def predict(self, data):
+        """
+        利用上面以训练好的阈值参数进行预测
+        :param data: 需要预测的数据，float或者float列表
+        :return: 预测结果
+        """
+        if not isinstance(data, float) or not isinstance(data, list):
+            raise Exception("非法参数数据类型")
+        if isinstance(data, list):
+            if len(data) == 0 or not isinstance(data[0], float):
+                raise Exception("非法参数数据类型")
+        if isinstance(data, float):
+            return self.__predict_func(data)
+        elif isinstance(data, list):
+            return [self.__predict_func(item) for item in data]
+        else:
+            return None
