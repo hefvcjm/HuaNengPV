@@ -5,6 +5,7 @@ from functools import reduce
 import numpy as np
 from main.src.log.Log import *
 from main.src.algorithm.AHP.config import *
+import copy
 
 
 class AHP:
@@ -16,11 +17,12 @@ class AHP:
         def __init__(self, **kwargs):
             """
             构造函数
-            :param kwargs: 初始化节点参数，score: 分数; sub_nodes: 子节点, jd_mat: 判断矩阵
+            :param kwargs: 初始化节点参数，score: 分数; sub_nodes: 子节点, jd_mat: 判断矩阵; name: 节点名称
             """
             self.score = kwargs["score"] if "score" in kwargs.keys() else None
-            self.__sub_nodes = kwargs["sub_nodes"] if "sub_nodes" in kwargs.keys() else None
-            self.__judgement_matrix = kwargs["jd_mat"] if "jd_mat" in kwargs.keys() else None
+            self.__sub_nodes = copy.deepcopy(kwargs["sub_nodes"]) if "sub_nodes" in kwargs.keys() else None
+            self.__judgement_matrix = copy.deepcopy(kwargs["jd_mat"]) if "jd_mat" in kwargs.keys() else None
+            self.__name = kwargs["name"] if "name" in kwargs.keys() else None
             self.__n = None  # 阶数
             self.__max_characteristic_value = None  # 最大特征值
             self.__weight_vector = None  # 权值向量
@@ -38,12 +40,13 @@ class AHP:
                         and not isinstance(self.__judgement_matrix, np.ndarray):
                     raise Exception("非法参数类型", kwargs["sub_nodes"])
                 self.__judgement_matrix = np.array(self.__judgement_matrix, float)
-                self.__norm_jd_mat()
-                self.__jd_mat_max_characteristic_value()
-                self.__calc_weight_vector()
-                self.__consistence_check()
-            if not self.__consistence:
-                raise Exception("判断矩阵不通过一致性检测")
+                if self.__sub_nodes is not None:
+                    self.__norm_jd_mat()
+                    self.__jd_mat_max_characteristic_value()
+                    self.__calc_weight_vector()
+                    self.__consistence_check()
+                    if not self.__consistence:
+                        raise Exception("判断矩阵不通过一致性检测")
 
         def __norm_jd_mat(self):
             """
@@ -76,7 +79,7 @@ class AHP:
                 row = self.__judgement_matrix[i, :]
                 temp.append(reduce(lambda x, y: x * y, row) ** (1. / (y * 1.)))
             logger.debug(temp)
-            self.__weight_vector = temp
+            self.__weight_vector = np.array(temp)
 
         def __consistence_check(self):
             """
@@ -86,7 +89,7 @@ class AHP:
             if self.__n <= 2:
                 self.__consistence = True
                 return
-            if self.__max_characteristic_value / RI[self.__n] < 0.1:
+            if ((self.__max_characteristic_value - self.__n) / (self.__n - 1)) / RI[self.__n] < 0.1:
                 self.__consistence = True
             else:
                 self.__consistence = False
@@ -97,12 +100,14 @@ class AHP:
             :return:
             """
             string = "\n\t节点: {},\n" \
+                     "\t名称: {},\n" \
                      "\t阶数: {},\n" \
                      "\t最大特征值: {},\n" \
                      "\t权值向量: {},\n" \
-                     "\t一致性: {}\n"
-            string = string.format(self, self.__n, self.__max_characteristic_value, self.__weight_vector,
-                                   self.__consistence)
+                     "\t一致性: {},\n" \
+                     "\t评分: {}\n"
+            string = string.format(self, self.__name, self.__n, self.__max_characteristic_value, self.__weight_vector,
+                                   self.__consistence, self.score)
             return string
 
         def get_weight(self):
@@ -112,7 +117,61 @@ class AHP:
             """
             return self.__weight_vector
 
+        def get_name(self):
+            """
+            获取节点名称
+            :return: 节点名称
+            """
+            return self.__name
 
-jd_mat = [[1., 3.], [1. / 3., 1.]]
-node = AHP.Node(jd_mat=jd_mat)
+        def get_sub_nodes(self):
+            """
+            获取子节点
+            :return: 子节点
+            """
+            return self.__sub_nodes
+
+    def __init__(self, root_node, is_copy=True):
+        if is_copy:
+            self.root_node = copy.deepcopy(root_node)
+        else:
+            self.root_node = root_node
+
+    def evaluate(self):
+        """
+        计算根节点得分
+        :return: 根节点得分
+        """
+
+        def __iter(node):
+            """
+            计算某个节点和递归到叶节点的得分
+            :param node: 节点
+            :return: 节点得分
+            """
+            sub_nodes = node.get_sub_nodes()
+            if sub_nodes is None:
+                return node.score
+            elif node.score is not None:
+                return node.score
+            else:
+                node.score = node.get_weight().dot(np.array([__iter(item) for item in sub_nodes]))
+                return node.score
+
+        return __iter(self.root_node)
+
+
+logger.debug("test")
+node1 = AHP.Node(score=80)
+node2 = AHP.Node(score=74)
+node3 = AHP.Node(score=98)
+jd_mat = np.array([[1., 3., 5.], [1. / 3., 1., 2.], [1. / 5., 1. / 2., 1.]]).T
+node_1 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
+node1 = AHP.Node(score=86)
+node2 = AHP.Node(score=77)
+node3 = AHP.Node(score=90)
+node_2 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
+node = AHP.Node(jd_mat=[[1., 5.], [1. / 5., 1.]], sub_nodes=[node_1, node_2])
+ahp = AHP(node, False)
+logger.debug(ahp.evaluate())
 logger.debug(node.to_string())
