@@ -1,5 +1,7 @@
 # coding = utf-8
 # 计算自适应阈值算法
+from main.src.log.Log import *
+
 
 class CalculateThreshold:
     """
@@ -12,7 +14,7 @@ class CalculateThreshold:
         构造方法
         :param which: 选择使用哪一种算法，字符串类型
         1:计算全局支路电流平均值（以某一节点单元为参考）和方差,设置固定偏差比率
-        2:直接固定偏差比率
+        2:直接固定偏差比率与均值的乘积
         3:理论值乘以固定偏差比率
         4:异常监测算法(暂未实现)
         """
@@ -39,6 +41,7 @@ class CalculateThreshold:
             std_var = (sum(map(lambda x: (x - mean) ** 2, data_list)) / len(data_list)) ** 0.5
             self.__low_threshold = mean - rate * std_var
             self.__predict_func = lambda x: x < self.__low_threshold
+            logger.debug("low_threshold: %f" % self.__low_threshold)
             return mean - rate * std_var
 
         def method_2(data_list, rate):
@@ -50,17 +53,19 @@ class CalculateThreshold:
                 raise Exception("列表元素数据类型非法")
             self.__low_threshold = (sum(data_list) / len(data_list)) * rate
             self.__predict_func = lambda x: x < self.__low_threshold
+            logger.debug("low_threshold: %f" % self.__low_threshold)
             return (sum(data_list) / len(data_list)) * rate
 
-        def method_3(theoretical_value, rate):
-            if not isinstance(theoretical_value, float) \
-                    or not isinstance(rate, float) \
-                    or not isinstance(rate, int) \
-                    or not isinstance(theoretical_value, int):
+        def method_3(thr_value, rate):
+            if (not isinstance(thr_value, float) \
+                and not isinstance(thr_value, int)) \
+                    or (not isinstance(rate, float) \
+                        and not isinstance(rate, int)):
                 raise Exception("非法参数数据类型")
-            self.__low_threshold = theoretical_value * rate
+            self.__low_threshold = thr_value * rate
             self.__predict_func = lambda x: x < self.__low_threshold
-            return theoretical_value * rate
+            logger.debug("low_threshold: %f" % self.__low_threshold)
+            return thr_value * rate
 
         # def method_4(data_list):
         #     if not isinstance(data_list, list):
@@ -92,9 +97,3 @@ class CalculateThreshold:
             return [self.__predict_func(item) for item in data]
         else:
             return None
-
-
-instance = CalculateThreshold(1)
-instance.train(data_list=[1, 2, 3, 2, 1, 5, 6, 3], rate=0.8)
-print(instance.predict(0.2))
-print(instance.predict([2, 4, 3]))
