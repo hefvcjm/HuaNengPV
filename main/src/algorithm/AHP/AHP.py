@@ -53,7 +53,7 @@ class AHP:
             归一化判断矩阵
             :return:
             """
-            logger.debug(self.__judgement_matrix)
+            logger.debug("\n{}".format(self.__judgement_matrix))
             x, y = self.__judgement_matrix.shape
             for i in range(y):
                 self.__judgement_matrix[:, i] = self.__judgement_matrix[:, i] / sum(self.__judgement_matrix[:, i])
@@ -137,13 +137,29 @@ class AHP:
         else:
             self.root_node = root_node
 
-    def evaluate(self):
+    def evaluate(self, adaptive_weight=False):
         """
         计算根节点得分
+        :param adaptive_weight 是否变权
         :return: 根节点得分
         """
+        balance_func = None
+        if adaptive_weight:
+            def __balance_func(node):
+                temp = []
+                for i in zip(node.get_weight(), node.get_sub_nodes()):
+                    score = __get_score(i[1])
+                    if score < 10:
+                        score = 10
+                    temp.append(i[0] * (score ** (a - 1)))
+                sum_temp = sum(temp)
+                return np.array([i / sum_temp for i in temp])
 
-        def __iter(node):
+            balance_func = __balance_func
+        else:
+            balance_func = lambda x: x.get_weight()
+
+        def __get_score(node):
             """
             计算某个节点和递归到叶节点的得分
             :param node: 节点
@@ -155,15 +171,15 @@ class AHP:
             elif node.score is not None:
                 return node.score
             else:
-                node.score = node.get_weight().dot(np.array([__iter(item) for item in sub_nodes]))
+                node.score = balance_func(node).dot(np.array([__get_score(item) for item in sub_nodes]))
                 return node.score
 
-        return __iter(self.root_node)
+        return __get_score(self.root_node)
 
 
 logger.debug("test")
 node1 = AHP.Node(score=80)
-node2 = AHP.Node(score=74)
+node2 = AHP.Node(score=86)
 node3 = AHP.Node(score=98)
 jd_mat = np.array([[1., 3., 5.], [1. / 3., 1., 2.], [1. / 5., 1. / 2., 1.]]).T
 node_1 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
@@ -173,5 +189,5 @@ node3 = AHP.Node(score=90)
 node_2 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
 node = AHP.Node(jd_mat=[[1., 5.], [1. / 5., 1.]], sub_nodes=[node_1, node_2])
 ahp = AHP(node, False)
-logger.debug(ahp.evaluate())
+logger.debug(ahp.evaluate(True))
 logger.debug(node.to_string())
