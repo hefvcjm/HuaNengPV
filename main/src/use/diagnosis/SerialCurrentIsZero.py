@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 # “某一支路电流为零”故障诊断调用模块
+# 需要所有的(相同生产环境的，或者说是具有一定可比性的)支路电流数据和上次返回count结果
+# 返回判断结果列表，和count列表
 from main.src.use.listeners.CommonListener import *
 from main.src.application.diagnosis.General import *
 import json
