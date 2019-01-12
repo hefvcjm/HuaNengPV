@@ -1,6 +1,38 @@
 # coding=utf-8
 from main.src.framework.BaseAlgorithm import *
 
+# 诊断支路故障
+import copy
+
+
+# 累计比较某一下限
+def compare_low_threshold(data, count, bias, counter):
+    """
+    比较某一下限值，连续累计counter次均小于下限阈值则认为当前低于下限
+    :param data: 数据列表
+    :param count: 上次比较累计列表
+    :param bias: 阈值
+    :param counter: 累计次数
+    :return: 比较结果列表，累计次数列表
+    """
+    temp = []
+    temp_count = copy.deepcopy(count)
+    result = []
+    n = len(data)
+    for i in range(n):
+        if data[i] < bias:
+            temp.append(True)
+            if count[i] < counter:
+                result.append(False)
+                temp_count[i] += 1
+            else:
+                result.append(True)
+        else:
+            result.append(False)
+            temp.append(False)
+            temp_count[i] = 0
+    return result, temp_count
+
 
 class ValueIsZero(BaseAlgorithm):
     """
