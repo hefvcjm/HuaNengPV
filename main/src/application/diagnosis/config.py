@@ -52,3 +52,8 @@ config_converter_power_low = {
 config_converter_efficiency_low = {
     "efficiency": 0.98,  # 逆变器效率
 }
+
+# 逆变器损耗过高
+config_converter_loss_high = {
+    "threshold": 50,  # 逆变器损耗上限阈值
+}
