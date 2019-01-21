@@ -3,37 +3,49 @@ from ..model import *
 
 
 class Converter(Model.Model):
+    class ConverterConfig(Config.Config):
 
-    def __init__(self, m_input=None, m_output=None, m_loss=None, m_config=None):
-        super().__init__(m_input, m_output, m_loss, m_config)
+        def __init__(self):
+            super().__init__()
+            self.P_in_max = 0  # 最大输入功率
+            self.V_in_max = 0  # 最大输入电压
+            self.V_boot = 0  # 启动电压
+            self.V_in = 0  # 额定输入电压
+            self.I_in_max = 0  # 最大输入电流
+            self.P_out = 0  # 额定输出功率
+            self.P_var = 0  # 额定视在功率
+            self.V_out = 0  # 额定输出电压
+            self.F_out = 0  # 额定输出频率
+            self.I_out = 0  # 额定输出电流
+            self.fi = 0  # 功率因数
+            self.efficiency = 0  # 效率
+
+    class ConverterInput(Input.Input):
+
+        def __init__(self):
+            super().__init__()
+            self.boxes = []
+
+    class ConverterOutput(Output.Output):
+
+        def __init__(self):
+            super().__init__()
+            self.I = 0
+            self.V = 0
+            self.F = 0
+            self.fi = 0
+
+    def __init__(self, m_input=None, m_output=None, m_config=None):
+        super().__init__(m_input, m_output, m_config)
 
         if m_config is None:
-            self.config.params["I"] = 0
-            self.config.params["V"] = 0
-            self.config.params["T"] = 0
-            self.config.params["freq"] = 0
+            self.config = self.ConverterConfig()
 
         if m_input is None:
-            self.input.params["serial"] = []
-            self.input.params["count"] = len(self.input.params["serial"])
+            self.input = self.ConverterInput()
 
         if m_output is None:
-            self.output.params["I"] = 0
-            self.output.params["V"] = 0
-            self.output.params["P"] = 0
-            self.output.params["freq"] = 50
+            self.ConverterOutput = self.ConverterOutput()
 
-        if m_loss is None:
-            self.loss.params["p_loss"] = 0
-
-    def calc_output(self):
-        if self.input.params["count"] == 0:
-            self.output.params["I"] = 0
-            self.output.params["V"] = 0
-            self.output.params["P"] = 0
-            self.output.params["freq"] = 0
-            return
-        self.output.params["I"] = sum([item.output.params["I"] for item in self.input.params["serial"]])
-        self.output.params["V"] = max([item.output.params["V"] for item in self.input.params["serial"]])
-        self.output.params["P"] = self.output.params["I"] * self.output.params["V"]
-        self.output.params["freq"] = 50
+        self.loss = 0
+        self.T = 0

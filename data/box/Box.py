@@ -3,32 +3,39 @@ from ..model import *
 
 
 class Box(Model.Model):
+    class BoxConfig(Config.Config):
 
-    def __init__(self, m_input=None, m_output=None, m_loss=None, m_config=None):
-        super().__init__(m_input, m_output, m_loss, m_config)
+        def __init__(self):
+            super().__init__()
+            self.V_max = 0  # 最大输入电压
+            self.V_min = 0  # 最小输入电压
+            self.I_max = 0  # 最大输入电流
+            self.N = 0  # 并联组串数
+            self.I_out_max = 0  # 最大输出电流
+
+    class BoxInput(Input.Input):
+
+        def __init__(self):
+            super().__init__()
+            self.serials = []
+
+    class BoxOutput(Output.Output):
+
+        def __init__(self):
+            super().__init__()
+            self.I = 0
+            self.V = 0
+
+    def __init__(self, m_input=None, m_output=None, m_config=None):
+        super().__init__(m_input, m_output, m_config)
         if m_config is None:
-            self.config.params["I"] = 0
-            self.config.params["V"] = 0
-            self.config.params["T"] = 0
+            self.config = self.BoxConfig()
 
         if m_input is None:
-            self.input.params["serial"] = []
-            self.input.params["count"] = len(self.input.params["serial"])
+            self.input = self.BoxInput()
 
         if m_output is None:
-            self.output.params["I"] = 0
-            self.output.params["V"] = 0
-            self.output.params["P"] = 0
+            self.output = self.BoxOutput()
 
-        if m_loss is None:
-            self.loss.params["p_loss"] = 0
-
-    def calc_output(self):
-        if self.input.params["count"] == 0:
-            self.output.params["I"] = 0
-            self.output.params["V"] = 0
-            self.output.params["P"] = 0
-            return
-        self.output.params["I"] = sum([item.output.params["I"] for item in self.input.params["serial"]])
-        self.output.params["V"] = max([item.output.params["V"] for item in self.input.params["serial"]])
-        self.output.params["P"] = self.output.params["I"] * self.output.params["V"]
+        self.loss = 0
+        self.T = 0
