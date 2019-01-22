@@ -1,6 +1,7 @@
 # coding = utf-8
-import json
 import re
+
+from data.model import Model
 
 
 class Port:
@@ -14,5 +15,8 @@ class Port:
             if not re.match("^_.*", item):
                 attr = getattr(self, item)
                 if not callable(attr):
-                    result[item] = attr
+                    if isinstance(attr, list) and len(attr) != 0 and isinstance(attr[0], Model.Model):
+                        result[item] = [i.format_object() for i in attr]
+                    else:
+                        result[item] = attr
         return result

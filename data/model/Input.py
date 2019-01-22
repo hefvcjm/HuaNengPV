@@ -1,6 +1,6 @@
 # coding = utf-8
 # 输入
-from .Port import *
+from data.model.Port import Port
 
 
 class Input(Port):

@@ -1,6 +1,8 @@
 # coding=utf-8
-from .Config import *
-from .Port import *
+import re
+
+from data.model.Config import Config
+from data.model.Port import Port
 
 
 class Model:

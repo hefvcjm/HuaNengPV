@@ -1,4 +1,4 @@
-from data.module.Module import *
+# coding = utf-8
+import matplotlib.pyplot as plt
 
-module = Module()
-print(Module.input.params)
+plt.plot([1, 2, 3, 4], [1, 2, 3, 4])

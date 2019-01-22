@@ -1,9 +1,11 @@
 # coding = utf-8
-from data.model import *
+from ..model.Config import *
+from ..model.Input import *
+from ..model.Output import *
 
 
 class Box(Model.Model):
-    class BoxConfig(Config.Config):
+    class BoxConfig(Config):
 
         def __init__(self):
             super().__init__()
@@ -13,13 +15,13 @@ class Box(Model.Model):
             self.N = 0  # 并联组串数
             self.I_out_max = 0  # 最大输出电流
 
-    class BoxInput(Input.Input):
+    class BoxInput(Input):
 
         def __init__(self):
             super().__init__()
             self.serials = []  # 组串
 
-    class BoxOutput(Output.Output):
+    class BoxOutput(Output):
 
         def __init__(self):
             super().__init__()
@@ -46,5 +48,5 @@ class Box(Model.Model):
             self.output.I = 0
             self.output.V = 0
             return
-        self.output.I = sum([item.I for item in self.input.serials])
-        self.output.V = max([item.V for item in self.input.serials])
+        self.output.I = sum([item.output.I for item in self.input.serials])
+        self.output.V = max([item.output.V for item in self.input.serials])

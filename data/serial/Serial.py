@@ -1,21 +1,23 @@
 # coding = utf-8
-from data.model import *
+from data.model.Config import *
+from data.model.Input import *
+from data.model.Output import *
 
 
 class Serial(Model.Model):
-    class SerialConfig(Config.Config):
+    class SerialConfig(Config):
 
         def __init__(self):
             super().__init__()
             self.N = 0  # 组串个数
 
-    class SerialInput(Input.Input):
+    class SerialInput(Input):
 
         def __init__(self):
             super().__init__()
             self.modules = []  # 组件
 
-    class SerialOutput(Output.Output):
+    class SerialOutput(Output):
 
         def __init__(self):
             super().__init__()
@@ -43,5 +45,5 @@ class Serial(Model.Model):
             self.output.I = 0
             self.output.V = 0
             return
-        self.output.I = max([item.I for item in self.input.modules])
-        self.output.V = sum([item.V for item in self.input.modules])
+        self.output.I = max([item.output.I for item in self.input.modules])
+        self.output.V = sum([item.output.V for item in self.input.modules])

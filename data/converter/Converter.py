@@ -1,9 +1,11 @@
 # coding = utf-8
-from data.model import *
+from ..model.Config import *
+from ..model.Input import *
+from ..model.Output import *
 
 
 class Converter(Model.Model):
-    class ConverterConfig(Config.Config):
+    class ConverterConfig(Config):
 
         def __init__(self):
             super().__init__()
@@ -20,13 +22,13 @@ class Converter(Model.Model):
             self.fi = 0  # 功率因数
             self.efficiency = 0  # 效率
 
-    class ConverterInput(Input.Input):
+    class ConverterInput(Input):
 
         def __init__(self):
             super().__init__()
             self.boxes = []  # 汇流箱
 
-    class ConverterOutput(Output.Output):
+    class ConverterOutput(Output):
 
         def __init__(self):
             super().__init__()

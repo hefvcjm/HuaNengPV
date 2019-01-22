@@ -1,10 +1,12 @@
 # coding = utf-8
 # 光伏组件
-from data.model import *
+from data.model.Config import *
+from data.model.Input import *
+from data.model.Output import *
 
 
 class Module(Model.Model):
-    class ModuleConfig(Config.Config):
+    class ModuleConfig(Config):
 
         def __init__(self):
             super().__init__()
@@ -16,7 +18,7 @@ class Module(Model.Model):
             self.efficiency = 0  # 组件效率
             self.S = 0  # 组件面积
 
-    class ModuleInput(Input.Input):
+    class ModuleInput(Input):
 
         def __init__(self):
             super().__init__()
@@ -24,7 +26,7 @@ class Module(Model.Model):
             self.Te = 0  # 环境温度
             self.Tm = 0  # 组件温度
 
-    class ModuleOutput(Output.Output):
+    class ModuleOutput(Output):
 
         def __init__(self):
             super().__init__()
