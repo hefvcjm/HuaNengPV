@@ -1,6 +1,4 @@
-from data.module.Module import *
-from data.box.Box import *
-from data.converter.Converter import *
+from data.device.module.Module import *
 
 module = Module()
 print(Module.input.params)
