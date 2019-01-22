@@ -45,7 +45,26 @@ class Converter(Model.Model):
             self.input = self.ConverterInput()
 
         if m_output is None:
-            self.ConverterOutput = self.ConverterOutput()
+            self.output = self.ConverterOutput()
 
         self.loss = 0
         self.T = 0
+
+    def calc_output(self):
+        super().calc_output()
+        if len(self.input.boxes) == 0:
+            self.output.I = 0
+            self.output.V = 0
+            self.output.F = 0
+            self.output.fi = 0
+            return
+        self.output.V = self.config.V_out
+        if self.output.V != 0:
+            self.output.I = sum([i * v for i, v in zip([item.I for item in self.input.boxes],
+                                                       [item.V for item in self.input.boxes])]) / self.output.V
+            self.output.F = 50
+            self.output.fi = 0.9
+        else:
+            self.output.I = 0
+            self.output.F = 0
+            self.output.fi = 0

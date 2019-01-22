@@ -36,3 +36,12 @@ class Serial(Model.Model):
 
         self.loss = 0
         self.T = 0
+
+    def calc_output(self):
+        super().calc_output()
+        if len(self.input.modules) == 0:
+            self.output.I = 0
+            self.output.V = 0
+            return
+        self.output.I = max([item.I for item in self.input.modules])
+        self.output.V = sum([item.V for item in self.input.modules])

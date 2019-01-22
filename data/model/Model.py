@@ -1,5 +1,6 @@
 # coding=utf-8
-import json
+from .Config import *
+from .Port import *
 
 
 class Model:
@@ -23,3 +24,15 @@ class Model:
 
     def calc_output(self):
         pass
+
+    def format_object(self):
+        result = dict()
+        for item in dir(self):
+            if not re.match("^_.*", item):
+                attr = getattr(self, item)
+                if not callable(attr):
+                    if isinstance(attr, Config) or isinstance(attr, Port):
+                        result[item] = attr.format_object()
+                    else:
+                        result[item] = attr
+        return result
