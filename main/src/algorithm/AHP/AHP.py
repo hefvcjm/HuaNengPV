@@ -177,17 +177,29 @@ class AHP:
         return __get_score(self.root_node)
 
 
-logger.debug("test")
-node1 = AHP.Node(score=80)
-node2 = AHP.Node(score=86)
-node3 = AHP.Node(score=98)
-jd_mat = np.array([[1., 3., 5.], [1. / 3., 1., 2.], [1. / 5., 1. / 2., 1.]]).T
-node_1 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
-node1 = AHP.Node(score=86)
-node2 = AHP.Node(score=77)
-node3 = AHP.Node(score=90)
-node_2 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
-node = AHP.Node(jd_mat=[[1., 5.], [1. / 5., 1.]], sub_nodes=[node_1, node_2])
+# logger.debug("test")
+# node1 = AHP.Node(score=80)
+# node2 = AHP.Node(score=86)
+# node3 = AHP.Node(score=98)
+# jd_mat = np.array([[1., 3., 5.], [1. / 3., 1., 2.], [1. / 5., 1. / 2., 1.]]).T
+# node_1 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
+# node1 = AHP.Node(score=86)
+# node2 = AHP.Node(score=77)
+# node3 = AHP.Node(score=90)
+# node_2 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
+# node = AHP.Node(jd_mat=[[1., 5.], [1. / 5., 1.]], sub_nodes=[node_1, node_2])
+# ahp = AHP(node, False)
+# logger.debug(ahp.evaluate(True))
+# logger.debug(node.to_string())
+
+logger.debug("inverter test")
+node1 = AHP.Node(score=100)
+node2 = AHP.Node(score=98.4)
+node3 = AHP.Node(score=89.4)
+jd_mat = np.array([[1., 5., 1 / 3.],
+                   [1. / 5., 1., 1 / 7.],
+                   [3., 7., 1.]]).T
+node = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
 ahp = AHP(node, False)
 logger.debug(ahp.evaluate(True))
 logger.debug(node.to_string())

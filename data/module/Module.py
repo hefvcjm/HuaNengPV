@@ -45,3 +45,8 @@ class Module(Model.Model):
             self.output = self.ModuleOutput()
 
         self.loss = 0  # 损耗
+
+    def calc_output(self):
+        pass
+
+
