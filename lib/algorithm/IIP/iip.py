@@ -139,9 +139,10 @@ class iip:
                 _num = num_area[:, j:j + _col]
                 if _num.shape[1] < _col:
                     continue
-                mol = np.sum((_num - np.mean(_num)) * (template - np.mean(template)))
-                den = (np.sum((_num - np.mean(_num)) ** 2) * (np.sum((template - np.mean(template)) ** 2))) ** 0.5
-                conv_result[i, j] = mol / den
+                # mol = np.sum((_num - np.mean(_num)) * (template - np.mean(template)))
+                # den = (np.sum((_num - np.mean(_num)) ** 2) * (np.sum((template - np.mean(template)) ** 2))) ** 0.5
+                # conv_result[i, j] = mol / den
+                conv_result[i, j] = np.corrcoef(template.reshape(template.size), _num.reshape(_num.size))[0, 1]
                 if conv_result[i, j] > 0.95:
                     result.append(_num_name[i])
                     j += _min_col - 1
