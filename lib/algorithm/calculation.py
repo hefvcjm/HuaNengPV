@@ -276,7 +276,7 @@ def efficiency_score(x: float, arfa: float, belta: float, M: float, a: float, b:
     return 1 / (1 + arfa * (x - a) ** belta)
 
 
-def temperature_score(x: float, mu: float, sigma: float, M: float, a: float, b: float, c: float, d: float):
+def temperature_score(x: float, sigma: float, M: float, a: float, b: float, c: float, d: float):
     """
     温度评分
     :param x: 某段时间平均温度
