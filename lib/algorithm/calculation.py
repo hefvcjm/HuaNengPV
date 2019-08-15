@@ -139,14 +139,14 @@ def ave_cell_temperature(time, temps: list):
     return (delta_time @ ((np.array(temps[:-1]) + np.array(temps[1:])) / 2)) / delta_time.sum()
 
 
-def correction_temp_factor(dilta: float, t_cell: float):
+def correction_temp_factor(delta: float, t_cell: float):
     """
     温度修正系数
     :param dilta: 光伏组件的功率温度系数，由组件铭牌参数得到
     :param t_cell: 某段时间内光伏组件电池平均结温
     :return: 修正号的温度系数
     """
-    return 1 + dilta * (t_cell - 25)
+    return 1 + delta * (t_cell - 25)
 
 
 def pr_in_period(real_gen: float, theoretical_gen: float):

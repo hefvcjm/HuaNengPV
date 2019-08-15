@@ -42,14 +42,6 @@ class iip:
         self.up_temp, self.down_temp = self.__get_up_down_temp()
         print(self.up_temp, self.down_temp)
 
-    def __get_temp_range(self) -> tuple:
-        """
-        根据图像温度上下限获取获取红外图像中温度范围
-        :return:红外图像上下限(up_temp,down_temp)
-        """
-        self.up_temp = 21.2
-        self.down_temp = -9.2
-
     def __get_map_param(self) -> tuple:
         """
         获取像素RGB到温度映射的参数，假设为线性关系
