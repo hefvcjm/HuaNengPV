@@ -6,14 +6,14 @@ import datetime
 
 def serial_zero_current(current, count):
     """
-    支路电流为零，连续num次电流小于thita认为电流为零。需要记住count，每次调用需要传该参数
+    支路电流为零，连续num次电流小于theta认为电流为零。需要记住count，每次调用需要传该参数
     :param current: 电流
     :param count: 累计次数
     :return: 是否发生电流为零故障，count
     """
-    thita = 0.01
+    theta = 0.01
     num = 2
-    if current < thita:
+    if current < theta:
         count += 1
     else:
         count = 0
