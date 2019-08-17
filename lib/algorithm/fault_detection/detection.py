@@ -25,7 +25,7 @@ def serial_zero_current(current, count):
         return True, count
 
 
-def serial_current_low(currents, start_times, now=datetime.datetime.time()) -> pd.DataFrame:
+def serial_current_low(currents, start_times, now=None) -> pd.DataFrame:
     """
     支路电流偏低
     :param currents: 同一个汇流箱下的支路电流
@@ -33,6 +33,8 @@ def serial_current_low(currents, start_times, now=datetime.datetime.time()) -> p
     :param now: 当前时刻
     :return: 结果信息pd.DataFrame,包含字段results：此次诊断结果；start_times：更新后得开始时间；delta_times：连续偏低时间；diagnosis_results：最终结果，delta_times > 10,为1，否则为0
     """
+    if now is None:
+        now = datetime.datetime.time()
     threshold = 10
     I = np.array(currents)
     mu = np.mean(I)
