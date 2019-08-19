@@ -3,7 +3,16 @@ import copy
 from . import *
 
 
-def execute(token: str, function: str, args: list) -> dict:
+def execute(token: str, function: str, args: list, *params, **kwargs) -> dict:
+    extra_args = ""
+    if len(params) != 0:
+        extra_args = ",".join(params)
+    if len(kwargs) != 0:
+        if len(params) != 0:
+            extra_args = extra_args + ","
+        extra_args = extra_args + ",".join(["%s=%s" % (k, v) for k, v in zip(kwargs.keys(), kwargs.values())])
+    if extra_args != "":
+        log.warn("多余字段参数：%s" % extra_args)
     func = FUNCTION_MAP.get(function)
     if func is None:
         err = "找不到功能模块：%s" % function
