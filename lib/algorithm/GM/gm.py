@@ -61,11 +61,11 @@ class gm:
         return result
 
 
-if __name__ == '__main__':
-    data = [10, 8, 4, 9, 2, 4, 6, 4, 8, 2, 6, 7]
-    model = gm(data)
-    import matplotlib.pyplot as plt
-
-    predict = model.predict_all(15)
-    plt.plot(range(len(data)), data, predict)
-    plt.show()
+# if __name__ == '__main__':
+#     data = [10, 8, 4, 9, 2, 4, 6, 4, 8, 2, 6, 7]
+#     model = gm(data)
+#     import matplotlib.pyplot as plt
+#
+#     predict = model.predict_all(15)
+#     plt.plot(range(len(data)), data, predict)
+#     plt.show()

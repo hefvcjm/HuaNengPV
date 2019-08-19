@@ -1,16 +1,17 @@
 # coding = utf-8
-
 import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 _row = 28
 
+__base_path = os.path.split(os.path.realpath(__file__))[0]
 _num_name = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-"]
 _num_template = []
 for name in _num_name:
-    t = cv2.imread("template/%s.jpg" % name, cv2.IMREAD_GRAYSCALE)
+    t = cv2.imread(os.path.join(__base_path, "template\\%s.jpg" % name), cv2.IMREAD_GRAYSCALE)
     ret, t = cv2.threshold(t, 50, 255, cv2.THRESH_BINARY)
     t[t == 255] = 1
     _num_template.append(t)
@@ -160,8 +161,13 @@ class iip:
         down_temp = self.__ocr_number(_area)
         return up_temp, down_temp
 
+    def get_max_temp(self):
+        max_temp = 0
+        area = []
+        # todo: get the temp and area
+        return max_temp, area
 
-iip(r"E:\project\HuaNengPV\infrared_images\41-1-4-12-serial\IR000186.JPG").get_map_param()
+# iip(r"E:\project\HuaNengPV\infrared_images\41-1-4-12-serial\IR000186.JPG").get_map_param()
 
 # def ocr_number(num_area: np.array) -> float:
 #     col = num_area.shape[1]
