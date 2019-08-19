@@ -79,6 +79,5 @@ class ZmqService(threading.Thread):
     def role(self):
         return self.__role
 
-
 # ZmqService(url="tcp://*:5571", role="server").start()
 # ZmqService(url="tcp://localhost:5555", role="client").start()

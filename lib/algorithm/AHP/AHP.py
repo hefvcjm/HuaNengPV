@@ -19,7 +19,7 @@ class AHP:
             构造函数
             :param kwargs: 初始化节点参数，score: 分数; sub_nodes: 子节点, jd_mat: 判断矩阵; name: 节点名称
             """
-            self.score = kwargs["score"] if "score" in kwargs.keys() else None
+            self.__score = kwargs["score"] if "score" in kwargs.keys() else None
             self.__sub_nodes = copy.deepcopy(kwargs["sub_nodes"]) if "sub_nodes" in kwargs.keys() else None
             self.__judgement_matrix = copy.deepcopy(kwargs["jd_mat"]) if "jd_mat" in kwargs.keys() else None
             self.__name = kwargs["name"] if "name" in kwargs.keys() else None
@@ -27,8 +27,8 @@ class AHP:
             self.__max_characteristic_value = None  # 最大特征值
             self.__weight_vector = None  # 权值向量
             self.__consistence = None  # 一致性
-            if self.score is not None:
-                if not isinstance(self.score, float) and not isinstance(self.score, int):
+            if self.__score is not None:
+                if not isinstance(self.__score, float) and not isinstance(self.__score, int):
                     raise Exception("非法参数类型", kwargs["score"])
             if self.__sub_nodes is not None:
                 if not isinstance(self.__sub_nodes, list) and not isinstance(self.__sub_nodes, np.ndarray):
@@ -47,6 +47,10 @@ class AHP:
                     self.__consistence_check()
                     if not self.__consistence:
                         raise Exception("判断矩阵不通过一致性检测")
+
+        @property
+        def score(self):
+            return self.__score
 
         def __norm_jd_mat(self):
             """
@@ -107,7 +111,7 @@ class AHP:
                      "\t一致性: {},\n" \
                      "\t评分: {}\n"
             string = string.format(self, self.__name, self.__n, self.__max_characteristic_value, self.__weight_vector,
-                                   self.__consistence, self.score)
+                                   self.__consistence, self.__score)
             return string
 
         def get_weight(self):
@@ -192,14 +196,14 @@ class AHP:
 # logger.debug(ahp.evaluate(True))
 # logger.debug(node.to_string())
 
-logger.debug("inverter test")
-node1 = AHP.Node(score=100)
-node2 = AHP.Node(score=98.4)
-node3 = AHP.Node(score=89.4)
-jd_mat = np.array([[1., 5., 1 / 3.],
-                   [1. / 5., 1., 1 / 7.],
-                   [3., 7., 1.]]).T
-node = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
-ahp = AHP(node, False)
-logger.debug(ahp.evaluate(True))
-logger.debug(node.to_string())
+# logger.debug("inverter test")
+# node1 = AHP.Node(score=100)
+# node2 = AHP.Node(score=98.4)
+# node3 = AHP.Node(score=89.4)
+# jd_mat = np.array([[1., 5., 1 / 3.],
+#                    [1. / 5., 1., 1 / 7.],
+#                    [3., 7., 1.]]).T
+# node = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
+# ahp = AHP(node, False)
+# logger.debug(ahp.evaluate(True))
+# logger.debug(node.to_string())
