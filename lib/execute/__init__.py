@@ -5,7 +5,8 @@ from lib.logger import log
 
 FUNCTION_MAP = {}
 
-__FUNCTION_MODULE_PATH = ["lib.algorithm.calculation", "lib.algorithm.fault_detection.detection"]
+__FUNCTION_MODULE_PATH = ["lib.algorithm.func.calculation", "lib.algorithm.func.detection", "lib.algorithm.func.health",
+                          "lib.algorithm.func.iip", "lib.algorithm.func.life_predict"]
 
 
 def __mapping():
