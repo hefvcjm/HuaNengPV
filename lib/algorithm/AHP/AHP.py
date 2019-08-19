@@ -3,8 +3,8 @@
 from functools import reduce
 
 import numpy as np
-from main.src.log.Log import *
-from main.src.algorithm.AHP.config import *
+from lib.logger import log
+from lib.algorithm.AHP.config import *
 import copy
 
 
@@ -57,11 +57,11 @@ class AHP:
             归一化判断矩阵
             :return:
             """
-            logger.debug("\n{}".format(self.__judgement_matrix))
+            log.debug("\n{}".format(self.__judgement_matrix))
             x, y = self.__judgement_matrix.shape
             for i in range(y):
                 self.__judgement_matrix[:, i] = self.__judgement_matrix[:, i] / sum(self.__judgement_matrix[:, i])
-            logger.debug(self.__judgement_matrix)
+            log.debug(self.__judgement_matrix)
 
         def __jd_mat_max_characteristic_value(self):
             """
@@ -82,7 +82,7 @@ class AHP:
             for i in range(x):
                 row = self.__judgement_matrix[i, :]
                 temp.append(reduce(lambda x, y: x * y, row) ** (1. / (y * 1.)))
-            logger.debug(temp)
+            log.debug(temp)
             self.__weight_vector = np.array(temp)
 
         def __consistence_check(self):
@@ -181,7 +181,7 @@ class AHP:
         return __get_score(self.root_node)
 
 
-# logger.debug("test")
+# log.debug("test")
 # node1 = AHP.Node(score=80)
 # node2 = AHP.Node(score=86)
 # node3 = AHP.Node(score=98)
@@ -193,10 +193,10 @@ class AHP:
 # node_2 = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
 # node = AHP.Node(jd_mat=[[1., 5.], [1. / 5., 1.]], sub_nodes=[node_1, node_2])
 # ahp = AHP(node, False)
-# logger.debug(ahp.evaluate(True))
-# logger.debug(node.to_string())
+# log.debug(ahp.evaluate(True))
+# log.debug(node.to_string())
 
-# logger.debug("inverter test")
+# log.debug("inverter test")
 # node1 = AHP.Node(score=100)
 # node2 = AHP.Node(score=98.4)
 # node3 = AHP.Node(score=89.4)
@@ -205,5 +205,5 @@ class AHP:
 #                    [3., 7., 1.]]).T
 # node = AHP.Node(jd_mat=jd_mat, sub_nodes=[node1, node2, node3])
 # ahp = AHP(node, False)
-# logger.debug(ahp.evaluate(True))
-# logger.debug(node.to_string())
+# log.debug(ahp.evaluate(True))
+# log.debug(node.to_string())
