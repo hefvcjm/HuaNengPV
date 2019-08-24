@@ -142,7 +142,7 @@ def ave_cell_temperature(time, temps: list):
 def correction_temp_factor(delta: float, t_cell: float):
     """
     温度修正系数
-    :param dilta: 光伏组件的功率温度系数，由组件铭牌参数得到
+    :param delta: 光伏组件的功率温度系数，由组件铭牌参数得到
     :param t_cell: 某段时间内光伏组件电池平均结温
     :return: 修正号的温度系数
     """
@@ -318,3 +318,13 @@ def aging_rate(before: float, arfa: float, daily_healths: list):
     """
     return before - arfa * sum(map(lambda x: 1 - x, daily_healths))
 
+
+def calc_generation_in_period(time, powers: list or np.array):
+    """
+    给定时间和功率列表计算发电量
+    :param time: 时间列表
+    :param powers: 功率列表，对应time
+    :return: 发电量
+    """
+    return pd.to_datetime(pd.Series(time)).diff().dropna().map(
+        lambda x: x.value / 10 ** 6 / 1000 / 3600).values @ ((powers[:-1] + powers[1:]) / 2)

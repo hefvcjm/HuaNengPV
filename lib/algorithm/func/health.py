@@ -1,6 +1,6 @@
 # coding = utf-8
 import numpy as np
-from lib.algorithm.func.calculation import fault_score, efficiency_score, temperature_score, group_health
+from lib.algorithm.calc.calculation import fault_score, efficiency_score, temperature_score, group_health
 from lib.algorithm.AHP.AHP import AHP
 
 __serial_jd_mat = np.array([[1., 5., 1 / 3.],
@@ -38,7 +38,20 @@ def health_evaluate(serials, boxes, inverters):
     :param serials: 组串数据列表[{id:_id, data:[fault_count, loss, temp]}...]
     :param boxes: 汇流箱数据列表 [{id:_id, data:[fault_count, loss, temp]}...]
     :param inverters: 逆变器数据列表 [{id:_id, data:[fault_count, loss, temp]}...]
-    :return:
+    fault_count由日故障列表统计得出，loss利用calculate中查询函数查询得出，
+    对于temp:
+            组串：[光功率预测遥测组件温度]
+            汇流箱：[#X光伏子阵汇流箱X内部温度]
+            逆变器：[#X光伏子阵X#逆变器机房环境温度]
+    :return: 组串，汇流箱，逆变器，组串群，汇流箱群，逆变器群，电站的健康度
+    -----------------------------------------------------
+    参数传递示例：
+    health_evaluate(
+                    [{"id":s1, data:[2, 10, 25]},{"id":s2, data:[1, 3, 26]},{"id":s3, data:[0, 11,30]}],
+                    [{"id":b1, data:[2, 10, 25]},{"id":b2, data:[1, 3, 26]},{"id":b3, data:[0, 11,30]},{"id":b4, data:[0, 12,30]}],
+                    [{"id":i1, data:[2, 10, 25]},{"id":i2, data:[1, 3, 26]}]
+                    )
+    触发条件：定时触发（天）
     """
     serial_scores = []
     for serial in serials:

@@ -7,9 +7,12 @@ import datetime
 def serial_zero_current(current, count):
     """
     支路电流为零，连续num次电流小于theta认为电流为零。需要记住count，每次调用需要传该参数
-    :param current: 电流
-    :param count: 累计次数
+    :param current: 电流 [#X光伏子阵汇流箱X IX]
+    :param count: 累计次数 [上次返回的结果count，每条支路单独一个值]
     :return: 是否发生电流为零故障，count
+    -----------------------------------------------------
+    参数说明如上所述
+    触发条件：实时触发
     """
     theta = 0.01
     num = 2
@@ -28,10 +31,13 @@ def serial_zero_current(current, count):
 def serial_current_low(currents, start_times, now=None) -> pd.DataFrame:
     """
     支路电流偏低
-    :param currents: 同一个汇流箱下的支路电流
-    :param start_times: 支路电流偏低开始时间，由返回的中间结果得到
+    :param currents: 同一个汇流箱下的支路电流 [#X光伏子阵汇流箱X I1,#X光伏子阵汇流箱X I2, #X光伏子阵汇流箱X I3 ...]
+    :param start_times: 支路电流偏低开始时间，由返回的中间结果得到 [上次返回的结果start_times，每条支路单独一个值]
     :param now: 当前时刻
     :return: 结果信息pd.DataFrame,包含字段results：此次诊断结果；start_times：更新后得开始时间；delta_times：连续偏低时间；diagnosis_results：最终结果，delta_times > 10,为1，否则为0
+    -----------------------------------------------------
+    参数说明如上所述
+    触发条件：实时触发
     """
     if now is None:
         now = datetime.datetime.time()
