@@ -68,7 +68,7 @@ def box_generation_in_period(time, voltages: list, *currents):
           以此类推，currenti为各路电流列表
     触发条件：查询触发
     """
-    powers = np.array(voltages) * np.array(currents).sum(axis=1)
+    powers = np.array(voltages) * np.array(currents).sum(axis=0)
     return calc_generation_in_period(time, powers)
 
 
@@ -101,12 +101,12 @@ def year_plan_completion_rate(real_gen: float, plan_gen: float):
 
 
 def device_theoretical_generation(time, irradiation: list, temps: list, delta: float, gstc: float, p0: float,
-                                  mu: float, ):
+                                  mu: float):
     """
     某段时间某设备的理论发电量
     :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
     :param irradiation: 与时间列表对应的辐照度数据 [光功率预测遥测直辐射瞬时值]
-    :param temps: 对应时间的光伏组件背板温度  [光功率预测遥测组件温度]
+    :param temps: 对应时间的光伏组件背板温度  [光功率预测遥测组件温度]（没有该数据）
     :param delta: 光伏组件的功率温度系数，由组件铭牌参数得到 [光伏组件的功率温度系数]
     :param gstc: gstc1000W/m² [参数表：id=9,name=标准辐照度]
     :param p0: 某设备的装机容量，kW [装机容量]
