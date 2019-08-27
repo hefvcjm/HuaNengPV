@@ -327,4 +327,4 @@ def calc_generation_in_period(time, powers: list or np.array):
     :return: 发电量
     """
     return pd.to_datetime(pd.Series(time)).diff().dropna().map(
-        lambda x: x.value / 10 ** 6 / 1000 / 3600).values @ ((powers[:-1] + powers[1:]) / 2)
+        lambda x: x.value / 10 ** 6 / 1000 / 3600).values @ ((np.array(powers)[:-1] + np.array(powers)[1:]) / 2)
