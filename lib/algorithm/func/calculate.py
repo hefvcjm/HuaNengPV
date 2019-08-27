@@ -100,24 +100,38 @@ def year_plan_completion_rate(real_gen: float, plan_gen: float):
     return real_gen / plan_gen
 
 
-def device_theoretical_generation(time, irradiation: list, temps: list, delta: float, gstc: float, p0: float,
-                                  mu: float):
+# def device_theoretical_generation(time, irradiation: list, temps: list, delta: float, gstc: float, p0: float,
+# #                                   mu: float):
+# #     """
+# #     某段时间某设备的理论发电量
+# #     :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
+# #     :param irradiation: 与时间列表对应的辐照度数据 [光功率预测遥测直辐射瞬时值]
+# #     :param temps: 对应时间的光伏组件背板温度  [光功率预测遥测组件温度]（没有该数据）
+# #     :param delta: 光伏组件的功率温度系数，由组件铭牌参数得到 [光伏组件的功率温度系数]
+# #     :param gstc: gstc1000W/m² [参数表：id=9,name=标准辐照度]
+# #     :param p0: 某设备的装机容量，kW [装机容量]
+# #     :param mu: 光伏组件年衰减系数 [参数表：name=XXX站#XX逆变器组件年衰减率]
+# #     :return: 起始时刻到终止时刻设备的理论发电量
+# #     -----------------------------------------------------
+# #     参数说明如上所述
+# #     触发条件：查询触发
+# #     """
+# #     total_irr = total_irradiation_in_period(time, irradiation)
+# #     return (total_irr / gstc) * p0 * mu * correction_temp_factor(delta, ave_cell_temperature(time, temps))
+
+def device_theoretical_generation(time, irradiation: list, p0: float):
     """
     某段时间某设备的理论发电量
     :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
     :param irradiation: 与时间列表对应的辐照度数据 [光功率预测遥测直辐射瞬时值]
-    :param temps: 对应时间的光伏组件背板温度  [光功率预测遥测组件温度]（没有该数据）
-    :param delta: 光伏组件的功率温度系数，由组件铭牌参数得到 [光伏组件的功率温度系数]
-    :param gstc: gstc1000W/m² [参数表：id=9,name=标准辐照度]
     :param p0: 某设备的装机容量，kW [装机容量]
-    :param mu: 光伏组件年衰减系数 [参数表：name=XXX站#XX逆变器组件年衰减率]
     :return: 起始时刻到终止时刻设备的理论发电量
     -----------------------------------------------------
     参数说明如上所述
     触发条件：查询触发
     """
     total_irr = total_irradiation_in_period(time, irradiation)
-    return (total_irr / gstc) * p0 * mu * correction_temp_factor(delta, ave_cell_temperature(time, temps))
+    return (total_irr / 1000) * p0
 
 
 def device_pr_in_period(real_gen: float, theoretical_gen: float):
