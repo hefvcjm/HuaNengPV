@@ -40,6 +40,21 @@ def gather_power_wire_generation_in_period(time, powers: list):
     return calc_generation_in_period(time, powers)
 
 
+def box_transformer_generation_in_period(time, powers1: list, powers2: list):
+    """
+    某段时间方阵发电量
+    :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
+    :param powers1: 数据库查询time时间列表对应的功率列表[#X光伏子阵XXA1箱变测控P1]
+    :param powers2: 数据库查询time时间列表对应的功率列表[#X光伏子阵XXA1箱变测控P2]
+    :return: 开始时刻到结束时刻电站的总发电量
+    -----------------------------------------------------
+    参数说明如上所述
+    触发条件：查询触发
+    """
+    powers = np.array(powers1) + np.array(powers2)
+    return calc_generation_in_period(time, powers)
+
+
 def inverter_generation_in_period(time, powers: list):
     """
     逆变器在某段时间内的发电量
