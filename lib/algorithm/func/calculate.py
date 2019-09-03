@@ -238,18 +238,19 @@ def zero_series_loss_in_period(num: int, normal_series_gen: list):
     return num / len(normal_series_gen) * sum(normal_series_gen)
 
 
-def inverter_loss_in_period(time, powers_out: list, powers_in: list):
+def inverter_loss_in_period(time, powers_out: list, voltages_in: list, currents_in: list):
     """
     某段时间逆变器损耗
     :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
     :param powers_out: 数据库查询time时间列表对应的功率列表[#X光伏子阵X#逆变器输出总有功]
-    :param powers_in: 数据库查询time时间列表对应的功率列表[#X光伏子阵X#逆变器PV输入功率]
+    :param voltages_in: 数据库查询time时间列表对应的功率列表[#XX光伏子阵X#逆变器直流输入电流]
+    :param currents_in: 数据库查询time时间列表对应的功率列表[#XX光伏子阵X#逆变器直流输入电压]
     :return: 某段时间逆变器损耗
     -----------------------------------------------------
     参数说明如上所述
     触发条件：查询触发
     """
-    powers = np.array(powers_in) - np.array(powers_out)
+    powers = np.array(voltages_in) @ np.array(currents_in) - np.array(powers_out)
     return calc_generation_in_period(time, powers)
 
 
