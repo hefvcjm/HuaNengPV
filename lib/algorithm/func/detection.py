@@ -2,8 +2,10 @@
 import numpy as np
 import pandas as pd
 import datetime
+from . import check_station
 
 
+@check_station(default_func=lambda currents, counts: {"result": [False] * len(currents), "count": [0] * len(counts)})
 def serial_zero_current(currents: list or np.array, counts: list or np.array):
     """
     支路电流为零，连续num次电流小于theta认为电流为零。需要记住count，每次调用需要传该参数
@@ -27,13 +29,17 @@ def serial_zero_current(currents: list or np.array, counts: list or np.array):
     return result
 
 
+@check_station(lambda currents, start_times, now: {"result": [False] * len(currents),
+                                                   "start_times": [now] * len(currents),
+                                                   "delta_times": [0] * len(currents),
+                                                   "diagnosis_results": [False] * len(currents)})
 def serial_current_low(currents, start_times, now=None) -> dict:
     """
     支路电流偏低
     :param currents: 同一个汇流箱下的支路电流 [#X光伏子阵汇流箱X I1,#X光伏子阵汇流箱X I2, #X光伏子阵汇流箱X I3 ...]
     :param start_times: 支路电流偏低开始时间，由返回的中间结果得到 [上次返回的结果start_times，每条支路单独一个值]
     :param now: 当前时刻
-    :return: 结果信息pd.DataFrame,包含字段results：此次诊断结果；start_times：更新后得开始时间；delta_times：连续偏低时间；diagnosis_results：最终结果，delta_times > 10,为1，否则为0
+    :return: 结果信息pd.DataFrame,包含字段results：此次诊断结果；start_times：更新后得开始时间；delta_times：连续偏低时间；diagnosis_results：最终结果，delta_times > 10,为True，否则为False
     -----------------------------------------------------
     参数说明如上所述
     触发条件：实时触发
