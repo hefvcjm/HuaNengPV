@@ -224,18 +224,43 @@ def inverter_fix_stop_loss_in_period(std_inverter_gen: float, fix_inverter_gen: 
     return std_inverter_gen - fix_inverter_gen
 
 
-def zero_series_loss_in_period(num: int, normal_series_gen: list):
+# def zero_series_loss_in_period(num: int, normal_series_gen: list):
+#     """
+#     某段时间汇流箱零支路损耗
+#     :param num: 汇流箱零支路数
+#     :param normal_series_gen: 某段时间正常支路发电量列表
+#     :return: 某段时间汇流箱零支路损耗
+#     -----------------------------------------------------
+#     num：某段时间某汇流箱零电流支路数，由故障列表统计得出，即发生[支路电流为零]的支路数
+#     normal_series_gen：设备某段时间实际发电量，由serials_generation_in_period函数计算该数值
+#     触发条件：查询触发
+#     """
+#     return num / len(normal_series_gen) * sum(normal_series_gen)
+
+def zero_series_loss_in_period(time, voltages: list, *currents):
     """
-    某段时间汇流箱零支路损耗
-    :param num: 汇流箱零支路数
-    :param normal_series_gen: 某段时间正常支路发电量列表
-    :return: 某段时间汇流箱零支路损耗
+    汇流箱在某段时间内的发电量
+    :param time: 时间（格式：yyyy-MM-DD HH:mm:ss）列表，若等间隔则为一个float类型，单位：秒
+    :param voltages: 数据库查询time时间列表对应的汇流箱总电压列表[#X光伏子阵汇流箱X汇流总电压]
+    :param currents: 数据库查询time时间列表对应的汇流箱各路电流列表[#X光伏子阵汇流箱X IX]
+    :return: 起始时刻到结束时刻汇流箱的发电量
     -----------------------------------------------------
-    num：某段时间某汇流箱零电流支路数，由故障列表统计得出，即发生[支路电流为零]的支路数
-    normal_series_gen：设备某段时间实际发电量，由serials_generation_in_period函数计算该数值
+    参数说明如上所述
+    说明：currents为汇流箱的全部电流列表，一路对应一个参数，
+          假如有1路，调用则为box_generation_in_period(time, voltages, current1)
+          假如有3路，调用则为box_generation_in_period(time, voltages, current1, current2, current3)
+          以此类推，currenti为各路电流列表
     触发条件：查询触发
     """
-    return num / len(normal_series_gen) * sum(normal_series_gen)
+    theta = 0.01
+    powers = np.array(voltages) * np.array(currents).sum(axis=0)
+    count_normal = 0
+    for current in currents:
+        if any(current > theta):
+            count_normal += 1
+    if count_normal == 0:
+        return 0
+    return calc_generation_in_period(time, powers) * (len(voltages) / count_normal)
 
 
 def inverter_loss_in_period(time, powers_out: list, voltages_in: list, currents_in: list):
