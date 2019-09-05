@@ -1,10 +1,10 @@
 # coding = utf-8
 import zmq
 import threading
-from lib.concurrent import ThreadPoolExecutor
-import copy
+from lib.thread.ThreadPool import ThreadPool
+from functools import partial
 from lib.logger import log
-from lib.execute.exec import response
+from lib.execute.exec import execute
 
 
 class ZmqService(threading.Thread):
@@ -40,7 +40,7 @@ class ZmqService(threading.Thread):
         except Exception as e:
             log.error("ZMQ连接参数错误，信息：%s" % e)
             return
-        executor = ThreadPoolExecutor(max_workers=self.__max_workers)
+        executor = ThreadPool(max_pool=5, queue_size=10 ** 8)
         log.info("Worker开启，服务角色为【%s】，创建最大线程数为【%s】的线程池处理请求" % (self.__role, self.__max_workers))
         log.info("等待请求 ...")
         while True:
@@ -65,24 +65,19 @@ class ZmqService(threading.Thread):
                 else:
                     self.__worker_queue.add(msg["token"])
                 try:
-                    task = executor.submit(response, timeout=10, socket=self.socket, **msg)
-                    setattr(task, "info", {"msg": msg, "socket": copy.deepcopy(self.socket)})
+                    executor.submit(fn=execute, callback=partial(self.done, token=msg["token"]), timeout=5, **msg)
                 except Exception as e:
                     self.__send_json(
                         {"token": msg["token"], "result": None, "err": "提交请求出错"})
                     self.__remove_token(msg["token"])
                     continue
-                try:
-                    task.add_done_callback(
-                        lambda _: self.__remove_token(task.info["msg"].get("token")))
-                except Exception as e:
-                    self.__send_json(
-                        {"token": task.info["msg"].get("token"), "result": None, "err": "执行完成时出现错误，信息：%s" % e})
-                    self.__remove_token(task.info["msg"].get("token"))
-                    continue
-                # todo: timeout
             except Exception as exce:
                 log.error(f"错误信息:{exce}")
+
+    def done(self, result, token):
+        log.info(f"send: {result}")
+        self.__socket.send_json(result)
+        self.__remove_token(token)
 
     @property
     def socket(self):
