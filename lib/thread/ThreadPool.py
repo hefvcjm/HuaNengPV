@@ -3,7 +3,9 @@ import inspect
 import ctypes
 import threading
 from typing import List
-from apscheduler.schedulers.background import BackgroundScheduler
+import sched
+import time
+from lib.logger import log
 
 
 class Timer(threading.Thread):
@@ -127,6 +129,10 @@ class Thread(threading.Thread):
         _async_raise(self.get_my_tid(), exctype)
 
 
+_schedule = None
+_lock = threading.Lock()
+
+
 class ThreadPool:
     class _Task:
         def __init__(self, fn, callback, timeout, *args, **kwargs):
@@ -139,7 +145,9 @@ class ThreadPool:
         def run(self, thread: Thread):
             thread.set_timer()
             thread.timer.new_timer(self.timeout, thread.raiseExc, [Exception])
+            # print("call: ", self.fn.__name__)
             result = self.fn(*self.args, **self.kwargs)
+            # print(result)
             thread.timer.cancel()
             if self.callback is not None:
                 self.callback(result)
@@ -147,32 +155,35 @@ class ThreadPool:
 
     def _worker(self, thread, task_queue: List[_Task]):
         while True:
-            self.__lock.acquire()
+            _lock.acquire()
             task = None
             if len(task_queue) != 0:
                 task = task_queue.pop(0)
-            self.__lock.release()
+                log.info(f"task queue remain: {len(self.__task_queue)}")
+            _lock.release()
             if task is not None:
                 task.run(thread[0])
-                del task
 
     def __init__(self, max_pool, queue=None):
+        global _schedule
         self.__thread_num = max_pool
         self.__queue_size = queue
         self.__task_queue = list()
         self.__threads = set()
-        self.__lock = threading.Lock()
-        self.__schedule = BackgroundScheduler()
-        self.__schedule.add_job(self._check_thread, "interval", seconds=10)
-        self.__schedule.start()
+        _schedule = sched.scheduler(time.time, time.sleep)
+        # self.__schedule.enter(1, 0, self._interval_check)
+        self._interval_check()
+        t = threading.Thread(target=_schedule.run)
+        t.start()
 
     def submit(self, fn, callback, timeout, *args, **kwargs):
-        self.__task_queue.append(self._Task(fn, callback, timeout, *args, **kwargs))
-        print(f"task queue: {len(self.__task_queue)}")
-        if self.__queue_size is not None:
-            if len(self.__task_queue) > self.__queue_size:
-                self.__task_queue = self.__queue_size[-len(self.__queue_size):]
-        self._adjust_thread_count()
+        with _lock:
+            self.__task_queue.append(self._Task(fn, callback, timeout, *args, **kwargs))
+            log.info(f"task queue: {len(self.__task_queue)}")
+            if self.__queue_size is not None:
+                if len(self.__task_queue) > self.__queue_size:
+                    self.__task_queue = self.__task_queue[-self.__queue_size:]
+            self._adjust_thread_count()
 
     def _adjust_thread_count(self):
         self._check_thread()
@@ -185,33 +196,47 @@ class ThreadPool:
             t.start()
             self.__threads.add(t)
 
+    def _interval_check(self):
+        _schedule.enter(1, 0, self._interval_check)
+        self._adjust_thread_count()
+
     def _check_thread(self):
-        print("_check_thread")
+        # print("_check_thread")
         self.__threads = set(filter(lambda x: x.is_alive(), self.__threads))
+        # print(f"after check: {len(self.__threads)}")
 
+# s = sched.scheduler(time.time, time.sleep)
+#
+#
+# def _interval_check():
+#     s.enter(1, 0, _interval_check)
+#     print("test")
+#
+#
+# s.enter(1, 0, _interval_check)
+# threading.Thread(target=s.run).start()
+# if __name__ == '__main__':
+#
+#     import time
+#
+#
+#     def loop(i=0):
+#         try:
+#             while True:
+#                 print(f"loop_{i}")
+#                 time.sleep(1)
+#         except Exception as e:
+#             print(e)
+#
+#
+#     thread_pool = ThreadPool(5, 1000)
+#     i = 0
+#     while True:
+#         i += 1
+#         thread_pool.submit(loop, None, 10, i)
+#         time.sleep(1)
 
-if __name__ == '__main__':
-
-    import time
-
-
-    def loop(i=0):
-        try:
-            while True:
-                print(f"loop_{i}")
-                time.sleep(1)
-        except Exception as e:
-            print(e)
-
-
-    thread_pool = ThreadPool(5, 1000)
-    i = 0
-    while True:
-        i += 1
-        thread_pool.submit(loop, None, 10, i)
-        time.sleep(1)
-
-    # thread = Thread(target=loop)
-    # thread.start()
-    # thread.set_timer()
-    # thread.timer.new_timer(5, thread.raiseExc, [Exception])
+# thread = Thread(target=loop)
+# thread.start()
+# thread.set_timer()
+# thread.timer.new_timer(5, thread.raiseExc, [Exception])
