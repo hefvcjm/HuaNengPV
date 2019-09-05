@@ -1,7 +1,7 @@
 # coding = utf-8
 import zmq
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from lib.concurrent import ThreadPoolExecutor
 import copy
 from lib.logger import log
 from lib.execute.exec import response
@@ -20,6 +20,16 @@ class ZmqService(threading.Thread):
             self.__role = "server"  # default
         self.__socket = None
 
+    def __send_json(self, data):
+        self.__socket.send_json(data)
+        log.info(f"send: {data}")
+
+    def __remove_token(self, token):
+        try:
+            self.__worker_queue.remove(token)
+        except Exception as e:
+            log.error(f"删除{token}出错:{e}")
+
     def run(self):
         self.__socket = zmq.Context().socket(zmq.PAIR)
         try:
@@ -35,41 +45,44 @@ class ZmqService(threading.Thread):
         log.info("等待请求 ...")
         while True:
             try:
-                msg = self.__socket.recv_json()
-            except Exception as e:
-                self.__socket.send_json({"token": None, "result": None, "err": "数据接收出错"})
-                continue
-            log.info("接收到消息: %s" % msg)
-            try:
-                assert msg.get("token") is not None
-                assert msg.get("function") is not None
-                assert msg.get("args") is not None
-            except AssertionError as e:
-                self.__socket.send_json({"token": msg.get("token"), "result": None, "err": "json格式出错，无法完成解析"})
-                continue
-            if msg["token"] in self.__worker_queue:
-                self.__socket.send_json(
-                    {"token": msg["token"], "result": None, "err": "token=%s对应的请求正在执行" % msg["token"]})
-                continue
-            else:
-                self.__worker_queue.add(msg["token"])
-            try:
-                task = executor.submit(response, socket=self.socket, **msg)
-                setattr(task, "info", {"msg": msg, "socket": copy.deepcopy(self.socket)})
-            except Exception as e:
-                self.__socket.send_json(
-                    {"token": msg["token"], "result": None, "err": "提交请求出错"})
-                self.__worker_queue.remove(msg["token"])
-                continue
-            try:
-                task.add_done_callback(
-                    lambda _: self.__worker_queue.remove(task.info["msg"].get("token")))
-            except Exception as e:
-                self.__socket.send_json(
-                    {"token": task.info["msg"].get("token"), "result": None, "err": "执行完成时出现错误，信息：%s" % e})
-                self.__worker_queue.remove(task.info["msg"].get("token"))
-                continue
-            # todo: timeout
+                try:
+                    msg = self.__socket.recv_json()
+                except Exception as e:
+                    self.__send_json({"token": None, "result": None, "err": "数据接收出错"})
+                    continue
+                log.info("接收到消息: %s" % msg)
+                try:
+                    assert msg.get("token") is not None
+                    assert msg.get("function") is not None
+                    assert msg.get("args") is not None
+                except AssertionError as e:
+                    self.__send_json({"token": msg.get("token"), "result": None, "err": "json格式出错，无法完成解析"})
+                    continue
+                if msg["token"] in self.__worker_queue:
+                    self.__send_json(
+                        {"token": msg["token"], "result": None, "err": "token=%s对应的请求正在执行" % msg["token"]})
+                    continue
+                else:
+                    self.__worker_queue.add(msg["token"])
+                try:
+                    task = executor.submit(response, timeout=10, socket=self.socket, **msg)
+                    setattr(task, "info", {"msg": msg, "socket": copy.deepcopy(self.socket)})
+                except Exception as e:
+                    self.__send_json(
+                        {"token": msg["token"], "result": None, "err": "提交请求出错"})
+                    self.__remove_token(msg["token"])
+                    continue
+                try:
+                    task.add_done_callback(
+                        lambda _: self.__remove_token(task.info["msg"].get("token")))
+                except Exception as e:
+                    self.__send_json(
+                        {"token": task.info["msg"].get("token"), "result": None, "err": "执行完成时出现错误，信息：%s" % e})
+                    self.__remove_token(task.info["msg"].get("token"))
+                    continue
+                # todo: timeout
+            except Exception as exce:
+                log.error(f"错误信息:{exce}")
 
     @property
     def socket(self):
