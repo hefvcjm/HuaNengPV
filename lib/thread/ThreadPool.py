@@ -5,6 +5,7 @@ import threading
 from typing import List
 import sched
 import time
+import queue
 from lib.logger import log
 
 
@@ -153,22 +154,18 @@ class ThreadPool:
                 self.callback(result)
             return result
 
-    def _worker(self, thread, task_queue: List[_Task]):
+    def _worker(self, thread, task_queue: queue.Queue):
         while True:
-            _lock.acquire()
-            task = None
-            if len(task_queue) != 0:
-                task = task_queue.pop(0)
-                log.info(f"task queue remain: {len(self.__task_queue)}")
-            _lock.release()
+            task = task_queue.get(block=True)
+            log.info(f"task queue remain: {task_queue.qsize()}")
             if task is not None:
                 task.run(thread[0])
 
-    def __init__(self, max_pool, queue=None):
+    def __init__(self, max_pool, queue_size=None):
         global _schedule
         self.__thread_num = max_pool
-        self.__queue_size = queue
-        self.__task_queue = list()
+        self.__queue_size = queue_size
+        self.__task_queue = queue.Queue(maxsize=self.__queue_size)
         self.__threads = set()
         _schedule = sched.scheduler(time.time, time.sleep)
         # self.__schedule.enter(1, 0, self._interval_check)
@@ -178,11 +175,8 @@ class ThreadPool:
 
     def submit(self, fn, callback, timeout, *args, **kwargs):
         with _lock:
-            self.__task_queue.append(self._Task(fn, callback, timeout, *args, **kwargs))
-            log.info(f"task queue: {len(self.__task_queue)}")
-            if self.__queue_size is not None:
-                if len(self.__task_queue) > self.__queue_size:
-                    self.__task_queue = self.__task_queue[-self.__queue_size:]
+            self.__task_queue.put(self._Task(fn, callback, timeout, *args, **kwargs))
+            log.info(f"task queue: {self.__task_queue.qsize()}")
             self._adjust_thread_count()
 
     def _adjust_thread_count(self):
