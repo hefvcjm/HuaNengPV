@@ -175,9 +175,12 @@ class ThreadPool:
 
     def submit(self, fn, callback, timeout, *args, **kwargs):
         with _lock:
-            self.__task_queue.put(self._Task(fn, callback, timeout, *args, **kwargs))
-            log.info(f"task queue: {self.__task_queue.qsize()}")
-            self._adjust_thread_count()
+            try:
+                self.__task_queue.put(self._Task(fn, callback, timeout, *args, **kwargs), block=False)
+                log.info(f"task queue: {self.__task_queue.qsize()}")
+                self._adjust_thread_count()
+            except queue.Full as full:
+                log.warning(f"exception : {full}")
 
     def _adjust_thread_count(self):
         self._check_thread()
